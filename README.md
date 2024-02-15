@@ -1,4 +1,5 @@
-Matlab code for reproducing results presented in the manuscript "Shaping Robust Dynamic Inversion Control of Neural Cell Dynamics" (doi.org/10.21203/rs.3.rs-2986266/v1).
+Matlab code for reproducing results presented in the manuscript "**Shaping Robust Dynamic Inversion Control of Neural Cell Dynamics**" (**doi.org/10.21203/rs.3.rs-2986266/v1**). Please contact rongting.yue@uconn.edu for any questions.
+
 
 File "IDNI_gains_11_27_no_EKF_burst_traj.m" uses the control method in the manuscript to activate a spiking train.
 
