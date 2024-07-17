@@ -1,7 +1,8 @@
 close all;clear all;clc;
 
 num_traject = 30; 
-desired_time = 1;
+% num_traject = 5; 
+desired_time = 0.8;
 
 ref = 15 / (1 - exp(-desired_time));
 
@@ -123,7 +124,9 @@ if(Dynamic_inversion == 1)
             G_leak = 0.3;
 
             %% Uncertain model
-            percent = 0.0;
+            if(j==1)
+                percent = 0;
+            end
 
             if(j>1)
                 percent = uncertain_percent;
@@ -219,42 +222,49 @@ if(Dynamic_inversion == 1)
                 I_record_nominal = I_record;
             end
             
-            % yyaxis left
+            colororder({'r','b'})
+            % yyaxis right
             % if j>1
-            %     yyaxis left
-            %     plot(cat(2,t_start,t),cat(2,V_start,V_record(j,:)), '--','LineWidth',1, 'color', '#00008B','HandleVisibility','off');
             %     yyaxis right
+            %     plot(cat(2,t_start,t),cat(2,V_start,V_record(j,:)), '--','LineWidth',1, 'color', '#00008B','HandleVisibility','off');
+            %     yyaxis left
             %     plot(cat(2,t_start,t),cat(2,I_start,I_record(j,:)), '--','LineWidth',1, 'color','r','HandleVisibility','off');
             % else
-            %     yyaxis left
-            %     plot(cat(2,t_start,t),cat(2,V_start,V_record(j,:)),'LineWidth',3, 'color', [0 0.4470 0.7410]);hold on
             %     yyaxis right
+            %     plot(cat(2,t_start,t),cat(2,V_start,V_record(j,:)),'LineWidth',3, 'color', [0 0.4470 0.7410]);hold on
+            %     yyaxis left
             %     plot(cat(2,t_start,t),cat(2,I_start,I_record(j,:)),'LineWidth',3, 'color','r')
             % end
             if j==1
-                yyaxis left
-                plot(cat(2,t_start,t),cat(2,V_start,V_record(j,:)),'LineWidth',3, 'color', [0 0.4470 0.7410]);hold on
                 yyaxis right
+                plot(cat(2,t_start,t),cat(2,V_start,V_record(j,:)),'LineWidth',3, 'color', [0 0.4470 0.7410]);hold on
+                yyaxis left
                 plot(cat(2,t_start,t),cat(2,I_start,I_record(j,:)),'LineWidth',3, 'color','r')
             end
+            % if j==1
+            %     yyaxis right
+            %     plot(cat(2,t_start,t),cat(2,V_start,V_record(j,:)),'LineWidth',3, 'color', [0 0.4470 0.7410]);hold on
+            %     yyaxis left
+            %     plot(cat(2,t_start,t),cat(2,I_start,I_record(j,:)),'LineWidth',3, 'color','r')
+            % end
             hold on
         end
     end
 
-
-    yyaxis left
+    
+    yyaxis right
     yline(-55,'--b', 'LineWidth',3) % Threshold
 
     track_plot = track + V_rest;
 
     set(gca,'FontSize',font_size)
     color_simu = [0 0.4470 0.7410];
-
+    
 
 
     i = 1;
     hold on
-    yyaxis left
+    yyaxis right
     % plot(cat(2,t_start,t),cat(2,V_start,V_record_nominal(i,:)),'--','LineWidth',1, 'Color', '#00008B') % uncertain model label
 
     % add label for uncertain model
@@ -290,12 +300,16 @@ if(Dynamic_inversion == 1)
     %% Continue plotting
     hold on;
 
+    % ylabel('Current (nA)','FontSize',font_size)
     ylabel('Voltage (mV)','FontSize',font_size)
     % xlabel('Time (ms)','FontSize',font_size)
 
+    % set(gca,'color','r');
+    % gca.YAxis(1).Color = 'b';
+    % gca.YAxis(2).Color = 'b';
+    
 
-
-    yyaxis right
+    yyaxis left
     % plot(cat(2,t_start,t),cat(2,I_start,I_record_nominal(i,:)),'LineWidth',1, 'color','r')
     hold on
 
@@ -320,12 +334,21 @@ if(Dynamic_inversion == 1)
     min_ascend = mean_values - confidence_interval;
     max_descend = flip(mean_values + confidence_interval);
 
+    %% 95 confidence region 
     fill([x_ascend, x_descend] * deltaT, [min_ascend, max_descend], 'r', 'EdgeColor', 'none', 'FaceAlpha', 0.5);
+    %% All possible region
     fill([x_ascend, x_descend] * deltaT, [min_values, flip(max_values)], 'r', 'EdgeColor', 'none', 'FaceAlpha', 0.2);
     
     %% Continue plotting
     hold on
+    % ylabel('Voltage (mV)' ,'FontSize',font_size)
     ylabel('Current (nA)' ,'FontSize',font_size)
+    
+    % leftLabel = get(gca, 'ylabel');  % Get the label of the left yyaxis
+    % rightLabel = get(gca, 'ylabel', 'right');  % Get the label of the right yyaxis
+    % 
+    % set(gca, 'ylabel', rightLabel);  % Set the label of the left yyaxis to the label of the right yyaxis
+    % set(gca, 'ylabel', leftLabel, 'YAxisLocation', 'right');  % Set the label of the right yy
 
     grid on
     % end 
@@ -333,8 +356,8 @@ if(Dynamic_inversion == 1)
     title('(a) CDI','FontSize',font_size)
     % legend( 'Reference Trajectory', 'Threshold (-55mV)' , 'Voltage (Uncertain Model)', 'Current Injection','Input Contraint (15 nA)', 'FontSize', font_size)
 
-    h_legend = legend( 'Voltage (Nominal Model)', 'Threshold (-55mV)' , 'Reference Trajectory', 'Voltage (95% Confidence Region)', 'Voltage (All Possible Region)','Current (Nonimal Model)','Current (95% Confidence Region)', 'Current (All Possible Region)', 'FontSize', font_size);
-    set(h_legend, 'location', 'northeastoutside')
+    % h_legend = legend( 'Voltage (Nominal Model)', 'Threshold (-55mV)' , 'Reference Trajectory', 'Voltage (95% Confidence Region)', 'Voltage (All Possible Region)','Current (Nonimal Model)','Current (95% Confidence Region)', 'Current (All Possible Region)', 'FontSize', font_size);
+    % set(h_legend, 'location', 'northeastoutside')
     
     % 'Threshold (-55mV)' ,
     hold on
@@ -504,7 +527,9 @@ if(IDNI == 1)
 
         I=zeros(1,numel(t));
         %% Uncertain model
-        percent = 0.0;
+        if(j==1)
+            percent = 0;
+        end
 
         if(j>1)
             percent = uncertain_percent;
@@ -667,16 +692,16 @@ if(IDNI == 1)
                 I_record_nominal = I_record;
             end
 
-            % yyaxis left
+            % yyaxis right
             % if j>1
-            %     yyaxis left
-            %     plot(cat(2,t_start,t),cat(2,V_start,V_record(j,:)), '--','LineWidth',1, 'color', '#00008B','HandleVisibility','off');
             %     yyaxis right
+            %     plot(cat(2,t_start,t),cat(2,V_start,V_record(j,:)), '--','LineWidth',1, 'color', '#00008B','HandleVisibility','off');
+            %     yyaxis left
             %     plot(cat(2,t_start,t),cat(2,I_start,I_record(j,:)), '--','LineWidth',1, 'color','r','HandleVisibility','off')
             % else
-            %     yyaxis left
-            %     plot(cat(2,t_start,t),cat(2,V_start,V_record(j,:)),'LineWidth',3, 'color', [0 0.4470 0.7410]);hold on
             %     yyaxis right
+            %     plot(cat(2,t_start,t),cat(2,V_start,V_record(j,:)),'LineWidth',3, 'color', [0 0.4470 0.7410]);hold on
+            %     yyaxis left
             %     plot(cat(2,t_start,t),cat(2,I_start,I_record(j,:)),'LineWidth',3, 'color','r')
             % end
             % hold on
@@ -688,9 +713,9 @@ if(IDNI == 1)
             % plot(x, mean_values, 'bo-', 'LineWidth', 1.5);
             
             if j==1
-                yyaxis left
-                plot(cat(2,t_start,t),cat(2,V_start,V_record(j,:)),'LineWidth',3, 'color', [0 0.4470 0.7410]);hold on
                 yyaxis right
+                plot(cat(2,t_start,t),cat(2,V_start,V_record(j,:)),'LineWidth',3, 'color', [0 0.4470 0.7410]);hold on
+                yyaxis left
                 plot(cat(2,t_start,t),cat(2,I_start,I_record(j,:)),'LineWidth',3, 'color','r')
             end
 
@@ -698,7 +723,7 @@ if(IDNI == 1)
 
 
     %% Plot
-    yyaxis left
+    yyaxis right
     yline(-55,'--b', 'LineWidth',3) % Threshold
 
     track_plot = track + V_rest;
@@ -710,7 +735,7 @@ if(IDNI == 1)
 
     i = 1;
     hold on
-    yyaxis left
+    yyaxis right
     % plot(cat(2,t_start,t),cat(2,V_start,V_record_nominal(i,:)),'--','LineWidth',1, 'Color', '#00008B') % uncertain model label
 
     % add label for uncertain model
@@ -746,12 +771,13 @@ if(IDNI == 1)
     %% Continue plotting
     hold on;
 
-    ylabel('Voltage (mV)','FontSize',font_size)
+    ylabel('Voltage (mV)' ,'FontSize',font_size)
+    % ylabel('Current (nA)' ,'FontSize',font_size)
     % xlabel('Time (ms)','FontSize',font_size)
 
 
 
-    yyaxis right
+    yyaxis left
     % plot(cat(2,t_start,t),cat(2,I_start,I_record_nominal(i,:)),'LineWidth',1, 'color','r')
     hold on
 
@@ -781,6 +807,7 @@ if(IDNI == 1)
     
     %% Continue plotting
     hold on
+    % ylabel('Voltage (mV)' ,'FontSize',font_size)
     ylabel('Current (nA)' ,'FontSize',font_size)
 
     grid on
@@ -789,7 +816,7 @@ if(IDNI == 1)
     title('(b) SRDI','FontSize',font_size)
     % legend( 'Reference Trajectory', 'Threshold (-55mV)' , 'Voltage (Uncertain Model)', 'Current Injection','Input Contraint (15 nA)', 'FontSize', font_size)
 
-    h_legend = legend( 'Voltage (Nominal Model)', 'Threshold (-55mV)' , 'Reference Trajectory', 'Voltage (95% Confidence Region)', 'Voltage (All Possible Region)','Current (Nonimal Model)','Current (95% Confidence Region)', 'Current (All Possible Region)', 'FontSize', font_size);
+    h_legend = legend( 'Current (Nominal Model)', 'Current (95% Confidence Region)', 'Current (All Possible Region)', 'Voltage (Nonimal Model)', 'Threshold (-55mV)' , 'Reference Trajectory', 'Voltage (95% Confidence Region)', 'Voltage (All Possible Region)', 'FontSize', font_size);
     set(h_legend, 'location', 'northeastoutside')
     
     % 'Threshold (-55mV)' ,
@@ -808,7 +835,7 @@ end
 % end
 % xlim([180 300])
 % xlabel('Time (0.1 nS)')
-% ylabel('Voltage (mV)')
+% ylabel('Current (nA)')
 % title('Dynamic Inversion Error','FontSize',font_size)
 
 
@@ -917,7 +944,9 @@ if(MPC == 1)
 
             I=zeros(1,numel(t));
             %% Uncertain model
-            percent = 0.0;
+            if(j==1)
+                percent = 0;
+            end
 
             if(j>1)
                 percent = uncertain_percent;
@@ -1104,28 +1133,28 @@ if(MPC == 1)
                 I_record_nominal = I_record;
             end
 
-            % yyaxis left
+            % yyaxis right
             % if j>1
-            %     yyaxis left
-            %     plot(cat(2,t_start,t),cat(2,V_start,V_record(j,:)), '--','LineWidth',1, 'color', '#00008B','HandleVisibility','off');
             %     yyaxis right
+            %     plot(cat(2,t_start,t),cat(2,V_start,V_record(j,:)), '--','LineWidth',1, 'color', '#00008B','HandleVisibility','off');
+            %     yyaxis left
             %     plot(cat(2,t_start,t),cat(2,I_start,I_record(j,:)), '--','LineWidth',1, 'color','r','HandleVisibility','off')
             % else
-            %     yyaxis left
-            %     plot(cat(2,t_start,t),cat(2,V_start,V_record(j,:)),'LineWidth',3, 'color', [0 0.4470 0.7410]);hold on
             %     yyaxis right
+            %     plot(cat(2,t_start,t),cat(2,V_start,V_record(j,:)),'LineWidth',3, 'color', [0 0.4470 0.7410]);hold on
+            %     yyaxis left
             %     plot(cat(2,t_start,t),cat(2,I_start,I_record(j,:)),'LineWidth',3, 'color','r')
             % end
             if j==1
-                yyaxis left
-                plot(cat(2,t_start,t),cat(2,V_start,V_record(j,:)),'LineWidth',3, 'color', [0 0.4470 0.7410]);hold on
                 yyaxis right
+                plot(cat(2,t_start,t),cat(2,V_start,V_record(j,:)),'LineWidth',3, 'color', [0 0.4470 0.7410]);hold on
+                yyaxis left
                 plot(cat(2,t_start,t),cat(2,I_start,I_record(j,:)),'LineWidth',3, 'color','r')
             end
             hold on
         end
     end
-    yyaxis left
+    yyaxis right
     yline(-55,'--b', 'LineWidth',3) % Threshold
 
     track_plot = track + V_rest;
@@ -1137,7 +1166,7 @@ if(MPC == 1)
 
     i = 1;
     hold on
-    yyaxis left
+    yyaxis right
     % plot(cat(2,t_start,t),cat(2,V_start,V_record_nominal(i,:)),'--','LineWidth',1, 'Color', '#00008B') % uncertain model label
 
     % add label for uncertain model
@@ -1173,12 +1202,13 @@ if(MPC == 1)
     %% Continue plotting
     hold on;
 
-    ylabel('Voltage (mV)','FontSize',font_size)
+    ylabel('Voltage (mV)' ,'FontSize',font_size)
+    % ylabel('Current (nA)' ,'FontSize',font_size)
     xlabel('Time (ms)','FontSize',font_size)
 
 
 
-    yyaxis right
+    yyaxis left
     % plot(cat(2,t_start,t),cat(2,I_start,I_record_nominal(i,:)),'LineWidth',1, 'color','r')
     hold on
 
@@ -1208,6 +1238,7 @@ if(MPC == 1)
     
     %% Continue plotting
     hold on
+    % ylabel('Voltage (mV)' ,'FontSize',font_size)
     ylabel('Current (nA)' ,'FontSize',font_size)
 
     grid on
@@ -1216,8 +1247,8 @@ if(MPC == 1)
     title('(c) MPC','FontSize',font_size)
     % legend( 'Reference Trajectory', 'Threshold (-55mV)' , 'Voltage (Uncertain Model)', 'Current Injection','Input Contraint (15 nA)', 'FontSize', font_size)
 
-    h_legend = legend( 'Voltage (Nominal Model)', 'Threshold (-55mV)' , 'Reference Trajectory', 'Voltage (95% Confidence Region)', 'Voltage (All Possible Region)','Current (Nonimal Model)','Current (95% Confidence Region)', 'Current (All Possible Region)', 'FontSize', font_size);
-    set(h_legend, 'location', 'northeastoutside')
+    % h_legend = legend( 'Voltage (Nominal Model)', 'Threshold (-55mV)' , 'Reference Trajectory', 'Voltage (95% Confidence Region)', 'Voltage (All Possible Region)','Current (Nonimal Model)','Current (95% Confidence Region)', 'Current (All Possible Region)', 'FontSize', font_size);
+    % set(h_legend, 'location', 'northeastoutside')
     
     % 'Threshold (-55mV)' ,
     hold on
@@ -1228,16 +1259,16 @@ if(MPC == 1)
     % 
     % i = 1;
     % hold on
-    % yyaxis left
+    % yyaxis right
     % plot(t(1:end), track_plot, 'color', "#FF00FF",'LineWidth', 1, 'Marker', '_')  %% ref track
     % 
-    % ylabel('Voltage (mV)','FontSize',font_size)
+    % ylabel('Current (nA)','FontSize',font_size)
     % xlabel('Time (ms)','FontSize',font_size)
     % 
-    % yyaxis right
+    % yyaxis left
     % plot(cat(2,t_start,t),cat(2,I_start,I_record_nominal(i,:)),'LineWidth',1, 'color','r')
     % hold on
-    % ylabel('Current (nA)' ,'FontSize',font_size)
+    % ylabel('Voltage (mV)' ,'FontSize',font_size)
     % line(nan, nan, 'color', '#00008B', 'linestyle', '--', 'linewidth', 1);
     % line(nan, nan, 'color','r',      'linestyle', '--', 'linewidth', 1);
     % grid on
@@ -1306,7 +1337,7 @@ if(Erro_plot == 1)
         end
         xlim([180 300])
         xlabel('Time (0.05 ms)')
-        ylabel('Voltage (mV)')
+        ylabel('Current (nA)')
         title('Error','FontSize',font_size)
         set(gca,'FontSize',font_size);
         hold on
@@ -1320,7 +1351,7 @@ if(Erro_plot == 1)
         end
         xlim([180 260])
         xlabel('Time (0.05 ms)')
-        ylabel('Voltage (mV)')
+        ylabel('Current (nA)')
         title('Error','FontSize',font_size)
     %     xlim()
     set(gca,'FontSize',font_size);
@@ -1335,7 +1366,7 @@ if(Erro_plot == 1)
         end
         xlim([180 300])
         xlabel('Time (0.05 ms)')
-        ylabel('Voltage (mV)')
+        ylabel('Current (nA)')
         title('Error','FontSize',font_size)
         set(gca,'FontSize',font_size);
         hold off
